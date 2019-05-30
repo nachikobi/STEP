@@ -10,6 +10,7 @@ typedef struct originNode{
 typedef struct dicNode {
   char sorted_word[17];
   int word_length;
+  int score;
   struct originNode *origin;
   struct dicNode *left;
   struct dicNode *right;
@@ -21,13 +22,15 @@ void open_dictionary(int *alph) { //任意の入力文字の組み合わせで�
   FILE *fp, *ofp;
   int i, alphcpy[27];
   char word[17];
-  fp = fopen("https://icanhazwordz.appspot.com/dictionary.words", "r");
+  fp = fopen("dictionary.txt", "r");
   ofp = fopen("mydic.txt","w+");
 
   if (fp != NULL) {
     while (fgets(word, sizeof(word), fp)!=NULL) {
-      /*1文字目が大文字かどうか判定して大文字なら小文字に入れ直す*/
-      if (word[0]>='A'&&word[0]<='Z') word[0] += 32;
+      /*大文字かどうか判定して大文字なら小文字に入れ直す*/
+      for (int j = 0; word[j]!='\n'; j++) {
+        if (word[j]>='A'&&word[j]<='Z') word[j] += 32;
+      }
 
       for (int j = 0; j < 27; j++) alphcpy[j]=alph[j];
       for (i = 0; word[i]!='\n'; i++) {
@@ -41,6 +44,7 @@ void open_dictionary(int *alph) { //任意の入力文字の組み合わせで�
     fprintf(stderr, "Usage: Can't open file!\n");
     exit(2);
   }
+
   fclose(fp);
   fclose(ofp);
 }
@@ -62,6 +66,20 @@ void merge(char *sorted, int left, int right) {
   }
 }
 
+int calc_score(char *word) {
+  int score = 0;
+  for (int i = 0; word[i]!='\n'; i++) {
+    if (word[i]=='a'||word[i]=='b'||word[i]=='d'||word[i]=='e'||word[i]=='g'||word[i]=='i'||word[i]=='n'||word[i]=='o'||word[i]=='r'||word[i]=='s'||word[i]=='t'||word[i]=='u') {
+      score++;
+    } else if (word[i]=='c'||word[i]=='f'||word[i]=='h'||word[i]=='l'||word[i]=='m'||word[i]=='p'||word[i]=='q'||word[i]=='v'||word[i]=='w'||word[i]=='y') {
+      score = score+2;
+    } else {
+      score = score+3;
+    }
+  }
+  return score;
+}
+
 originNode* originNEW(char *origin_word) {
   originNode *x = malloc(sizeof *x);
   if (x == NULL) {
@@ -73,7 +91,7 @@ originNode* originNEW(char *origin_word) {
   return x;
 }
 
-dicNode* NEW(char *sorted_word, char *origin_word) {
+dicNode* NEW(char *sorted_word, char *origin_word, int score) {
   dicNode *x = malloc(sizeof *x);
   if (x == NULL) {
     fprintf(stderr, "Usage: malloc\n");
@@ -81,6 +99,7 @@ dicNode* NEW(char *sorted_word, char *origin_word) {
   }
   strcpy(x->sorted_word, sorted_word);
   x->word_length = strlen(sorted_word)-1;
+  x->score = score;
   x->origin = originNEW(origin_word);
   x->left = NULL;
   x->right = NULL;
@@ -94,18 +113,27 @@ void origin_insert(originNode **node,char *origin_word) {
   else origin_insert(&(*node)->next,origin_word);
 }
 
-void insert(dicNode **node, char *sorted_word, char *origin_word) {  //単語の文字数でソート
+void insert(dicNode **node, char *sorted_word, char *origin_word) {  //単語のscoreでソート
+  int score = calc_score(sorted_word);
   if ((*node)==NULL) { //新しいノードを作成
-    *node = NEW(sorted_word, origin_word);
+    *node = NEW(sorted_word, origin_word, score);
   } else {
-    if ((*node)->word_length==(strlen(sorted_word)-1)) {
+    if ((*node)->score==score) {
       if (strcmp((*node)->sorted_word, sorted_word)==0) origin_insert(&(*node)->origin, origin_word);
       else if (strcmp((*node)->sorted_word, sorted_word)>0) insert(&(*node)->left, sorted_word, origin_word);
       else insert(&(*node)->right, sorted_word, origin_word);
-    } else if ((*node)->word_length>(strlen(sorted_word)-1)) insert(&(*node)->left, sorted_word, origin_word);
+    } else if ((*node)->score>score) insert(&(*node)->left, sorted_word, origin_word);
     else insert(&(*node)->right, sorted_word, origin_word);
 
   }
+}
+
+void print(dicNode *now) {
+  if (now == NULL) return;
+
+  print(now->left);
+  printf("n=%d %s", now->score, now->origin->origin_word);
+  print(now->right);
 }
 
 
@@ -122,7 +150,12 @@ int main(int argc, char *argv[]) {
   }
   /*入力文字の出現回数を記録*/
   for (int i = 1; argv[i] != NULL; i++) {
-    alph[*argv[i]-'a']++;
+    if (strcmp(argv[i],"qu")==0) {
+      alph['q'-'a']++;
+      alph['u'-'a']++;
+    } else {
+      alph[*argv[i]-'a']++;
+    }
   }
   open_dictionary(alph);
 
@@ -138,6 +171,7 @@ int main(int argc, char *argv[]) {
   }
 
   /*辞書木の出力*/
+  print(head);
 
   return 0;
 }
