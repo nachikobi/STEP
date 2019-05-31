@@ -3,12 +3,12 @@
 #include <stdlib.h>
 
 typedef struct originNode{
-  char origin_word[17];
+  char origin_word[18];
   struct originNode *next;
 }originNode;
 
 typedef struct dicNode {
-  char sorted_word[17];
+  char sorted_word[18];
   int word_length;
   int score;
   struct originNode *origin;
@@ -21,24 +21,27 @@ static dicNode *head=NULL;
 void open_dictionary(int *alph) { //任意の入力文字の組み合わせで構成されている単語を抽出
   FILE *fp, *ofp;
   int i, alphcpy[27];
-  char word[17];
+  char word[18];
   fp = fopen("dictionary.txt", "r");
   ofp = fopen("mydic.txt","w+");
 
   if (fp != NULL) {
     while (fgets(word, sizeof(word), fp)!=NULL) {
-      /*大文字かどうか判定して大文字なら小文字に入れ直す*/
-      for (int j = 0; word[j]!='\n'; j++) {
-        if (word[j]>='A'&&word[j]<='Z') word[j] += 32;
-      }
+      if (word[0]!='\n') {  //改行のみの行は飛ばす
 
-      for (int j = 0; j < 27; j++) alphcpy[j]=alph[j];
-      for (i = 0; word[i]!='\n'; i++) {
-        int n = word[i]-'a';
-        if (alphcpy[n]>=1) alphcpy[n]--;
-        else break;
+        /*大文字かどうか判定して大文字なら小文字に入れ直す*/
+        for (int j = 0; word[j]!='\n'; j++) {
+          if (word[j]>='A'&&word[j]<='Z') word[j] += 32;
+        }
+
+        for (int j = 0; j < 27; j++) alphcpy[j]=alph[j];
+        for (i = 0; word[i]!='\n'; i++) {
+          int n = word[i]-'a';
+          if (alphcpy[n]>=1) alphcpy[n]--;
+          else break;
+        }
+        if (i==(strlen(word)-1)) fputs(word,ofp);
       }
-      if (i==(strlen(word)-1)) fputs(word,ofp);
     }
   } else {  //エラー処理
     fprintf(stderr, "Usage: Can't open file!\n");
@@ -139,7 +142,7 @@ void print(dicNode *now) {
 
 int main(int argc, char *argv[]) {
   int alph[26];
-  char word[17], sorted_word[17];
+  char word[18], sorted_word[18];
   FILE *fp;
   for (int i = 0; i < 26; i++) alph[i] = 0;
 
