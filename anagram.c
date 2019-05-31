@@ -3,12 +3,12 @@
 #include <stdlib.h>
 
 typedef struct originNode{
-  char origin_word[18];
+  char origin_word[20];
   struct originNode *next;
 }originNode;
 
 typedef struct dicNode {
-  char sorted_word[18];
+  char sorted_word[20];
   int word_length;
   int score;
   struct originNode *origin;
@@ -21,12 +21,8 @@ static dicNode *head=NULL;
 void open_dictionary(int *alph) { //任意の入力文字の組み合わせで構成されている単語を抽出
   FILE *fp, *ofp;
   int i, alphcpy[27];
-  char word[18];
-  /*配列の初期化*/
-  for (int j = 0; j < 30; j++) {
-    word[j]='\0';
-  }
-  
+  char word[20];
+
   fp = fopen("dictionary.txt", "r");
   ofp = fopen("mydic.txt","w+");
 
@@ -44,7 +40,7 @@ void open_dictionary(int *alph) { //任意の入力文字の組み合わせで�
           if (alphcpy[n]>=1) alphcpy[n]--;
           else {
             /*配列の初期化*/
-            for (int j = 0; j < 30; j++) {
+            for (int j = 0; j < 20; j++) {
               word[j]='\0';
             }
             break;
@@ -53,7 +49,7 @@ void open_dictionary(int *alph) { //任意の入力文字の組み合わせで�
         }
         if (i==(strlen(word)-1)) fputs(word,ofp);
         /*配列の初期化*/
-        for (int j = 0; j < 30; j++) {
+        for (int j = 0; j < 20; j++) {
           word[j]='\0';
         }
       }
@@ -157,7 +153,7 @@ void print(dicNode *now) {
 
 int main(int argc, char *argv[]) {
   int alph[26];
-  char word[18], sorted_word[18];
+  char word[20], sorted_word[20];
   FILE *fp;
   for (int i = 0; i < 26; i++) alph[i] = 0;
 
