@@ -135,7 +135,7 @@ void print(dicNode *now) {
   if (now == NULL) return;
 
   print(now->left);
-  printf("n=%d %s", now->score, now->origin->origin_word);
+  printf("score=%d %s", now->score, now->origin->origin_word);
   print(now->right);
 }
 
