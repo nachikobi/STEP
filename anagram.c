@@ -39,6 +39,7 @@ void open_dictionary(int *alph) { //任意の入力文字の組み合わせで�
           int n = word[i]-'a';
           if (alphcpy[n]>=1) alphcpy[n]--;
           else break;
+          if (word[i]=='q'&&word[i+1]=='u') i++;
         }
         if (i==(strlen(word)-1)) fputs(word,ofp);
       }
@@ -155,7 +156,6 @@ int main(int argc, char *argv[]) {
   for (int i = 1; argv[i] != NULL; i++) {
     if (strcmp(argv[i],"qu")==0) {
       alph['q'-'a']++;
-      alph['u'-'a']++;
     } else {
       alph[*argv[i]-'a']++;
     }
@@ -172,7 +172,6 @@ int main(int argc, char *argv[]) {
     /*単語を辞書木に追加*/
     insert(&head,sorted_word,word);
   }
-
   /*辞書木の出力*/
   print(head);
 
