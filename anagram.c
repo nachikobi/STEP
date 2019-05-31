@@ -22,13 +22,17 @@ void open_dictionary(int *alph) { //任意の入力文字の組み合わせで�
   FILE *fp, *ofp;
   int i, alphcpy[27];
   char word[18];
+  /*配列の初期化*/
+  for (int j = 0; j < 30; j++) {
+    word[j]='\0';
+  }
+  
   fp = fopen("dictionary.txt", "r");
   ofp = fopen("mydic.txt","w+");
 
   if (fp != NULL) {
     while (fgets(word, sizeof(word), fp)!=NULL) {
       if (word[0]!='\n') {  //改行のみの行は飛ばす
-
         /*大文字かどうか判定して大文字なら小文字に入れ直す*/
         for (int j = 0; word[j]!='\n'; j++) {
           if (word[j]>='A'&&word[j]<='Z') word[j] += 32;
@@ -38,10 +42,20 @@ void open_dictionary(int *alph) { //任意の入力文字の組み合わせで�
         for (i = 0; word[i]!='\n'; i++) {
           int n = word[i]-'a';
           if (alphcpy[n]>=1) alphcpy[n]--;
-          else break;
+          else {
+            /*配列の初期化*/
+            for (int j = 0; j < 30; j++) {
+              word[j]='\0';
+            }
+            break;
+          }
           if (word[i]=='q'&&word[i+1]=='u') i++;
         }
         if (i==(strlen(word)-1)) fputs(word,ofp);
+        /*配列の初期化*/
+        for (int j = 0; j < 30; j++) {
+          word[j]='\0';
+        }
       }
     }
   } else {  //エラー処理
@@ -136,7 +150,7 @@ void print(dicNode *now) {
   if (now == NULL) return;
 
   print(now->left);
-  printf("score=%d %s", now->score, now->origin->origin_word);
+  printf("score=%d %s\n", now->score, now->origin->origin_word);
   print(now->right);
 }
 
