@@ -12,3 +12,6 @@ Segmentation fault: 11
 Abort trap: 6  
 Bus error: 10  
 がランダムで出てくる
+
+7/18 C++で再挑戦
+     まずは最長単語を出すプログラムを作成・完成
